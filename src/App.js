@@ -189,6 +189,7 @@ function App() {
     <div className="App">
       <div className="unity-wrapper" id="unity-wrapper">
         <Unity
+         
           id="unity-canvas"
           className="unity-canvas"
           unityProvider={unityProvider}
