@@ -1,26 +1,49 @@
+import { Buffer } from "buffer";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import "./App.css";
 import { useEffect } from "react";
 import * as XLSX from "xlsx";
 
 function App() {
-  const { unityProvider, isLoaded, addEventListener, removeEventListener } =
-    useUnityContext({
-      productName: "BK Sandbox",
-      productVersion: "1.0.0",
-      companyName: "Bacoor",
-      loaderUrl: `/unity/sb-new.loader.js`,
-      dataUrl: `/unity/sb-new.data.unityweb`,
-      frameworkUrl: "/unity/sb-new.framework.js.unityweb",
-      codeUrl: `/unity/sb-new.wasm.unityweb`,
-      webglContextAttributes: {
-        preserveDrawingBuffer: true,
-      },
-    });
+  const {
+    unityProvider,
+    isLoaded,
+    addEventListener,
+    removeEventListener,
+    sendMessage,
+  } = useUnityContext({
+    productName: "BK Sandbox",
+    productVersion: "1.0.0",
+    companyName: "Bacoor",
+    loaderUrl: `/unity/sb-new.loader.js`,
+    dataUrl: `/unity/sb-new.data.unityweb`,
+    frameworkUrl: "/unity/sb-new.framework.js.unityweb",
+    codeUrl: `/unity/sb-new.wasm.unityweb`,
+    webglContextAttributes: {
+      preserveDrawingBuffer: true,
+    },
+  });
 
   useEffect(() => {
+    const login = async () => {
+      const response = await fetch(
+        "http://admin.bountykinds.com/test-back-office/admin/login",
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Basic dnU6YmtpbmQyMDIz",
+          },
+        }
+      );
+
+      const json = await response.json();
+
+      const token = json.data.accessToken.token;
+      sendMessage("LocalController", "Login", token);
+    };
     if (isLoaded) {
       addEventListener("ExportCSV", exportCSV);
+      login();
     }
     return () => {
       removeEventListener("ExportCSV", exportCSV);
@@ -189,7 +212,6 @@ function App() {
     <div className="App">
       <div className="unity-wrapper" id="unity-wrapper">
         <Unity
-         
           id="unity-canvas"
           className="unity-canvas"
           unityProvider={unityProvider}
